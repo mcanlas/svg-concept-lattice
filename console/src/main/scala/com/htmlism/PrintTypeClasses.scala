@@ -48,7 +48,7 @@ object PrintTypeClasses extends App {
 
   println {
     SvgCanvas.render {
-      SvgCanvas(2000, 2000, svgElements)
+      SvgCanvas(1000, 1000, svgElements)
     }
   }
 }

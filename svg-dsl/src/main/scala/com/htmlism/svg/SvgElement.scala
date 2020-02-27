@@ -11,7 +11,7 @@ object SvgElement {
     case SvgCircle(x, y, radius) =>
       emptyTag("circle", List(
         "stroke" -> "black",
-        "stroke-wdith" -> "2",
+        "stroke-width" -> "5",
         "fill" -> "red",
         "cx" -> x.toString,
         "cy" -> y.toString,
