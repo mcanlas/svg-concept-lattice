@@ -24,8 +24,8 @@ object EasyNode {
         }
 
     val edges =
-      (0 until y)
-        .map(dy => ConceptLatticeEdge(Coordinate(x, dy), Coordinate(x, dy + 1)))
+      (0 until ns.length)
+        .map(dy => ConceptLatticeEdge(Coordinate(x, y + dy), Coordinate(x, y + dy + 1)))
         .toList
 
     NonEmptyChain

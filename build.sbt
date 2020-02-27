@@ -8,6 +8,7 @@ lazy val `concept-lattice-dsl` =
 
 lazy val `svg-dsl` =
   project
+    .withCats
 
 lazy val console = project
   .dependsOn(`concept-lattice-dsl`, `svg-dsl`)

@@ -26,6 +26,8 @@ object PrintTypeClasses extends App {
   val applicativeLine = ConceptLatticeEdge(Coordinate(0, 1), Coordinate(1, 2))
   val monadLine = ConceptLatticeEdge(Coordinate(0, 2), Coordinate(1, 3))
 
+  println(leftChain)
+
   val typeClassLattice =
     leftChain
       .concat(rightChain)
@@ -41,7 +43,12 @@ object PrintTypeClasses extends App {
         NonEmptyChain.one(SvgCircle(x * 20, y * 20, 5))
     }
 
-  println {
+  val svgElements =
     typeClassLattice >>= render(20)
+
+  println {
+    SvgCanvas.render {
+      SvgCanvas(500, 500, svgElements)
+    }
   }
 }
