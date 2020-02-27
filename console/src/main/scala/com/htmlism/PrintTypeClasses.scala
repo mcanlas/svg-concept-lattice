@@ -34,21 +34,21 @@ object PrintTypeClasses extends App {
       .prepend(applicativeLine)
       .prepend(monadLine)
 
-  def render(factor: Int)(x: ConceptLatticeElement): NonEmptyChain[SvgElement] =
+  def render(factor: Int, xPad: Int, yPad: Int)(x: ConceptLatticeElement): NonEmptyChain[SvgElement] =
     x match {
       case ConceptLatticeEdge(Coordinate(x1, y1), Coordinate(x2, y2)) =>
-        NonEmptyChain.one(SvgLine(x1 * 20, y1 * 20, x2 * 20, y2 * 20))
+        NonEmptyChain.one(SvgLine(xPad + x1 * factor, yPad + y1 * factor, xPad + x2 * factor, yPad + y2 * factor))
 
       case ConceptLatticeNode(Coordinate(x, y), attr, objs) =>
-        NonEmptyChain.one(SvgCircle(x * 20, y * 20, 5))
+        NonEmptyChain.one(SvgCircle(xPad + x * factor, yPad + y * factor, 50))
     }
 
   val svgElements =
-    typeClassLattice >>= render(20)
+    typeClassLattice >>= render(200, 100, 100)
 
   println {
     SvgCanvas.render {
-      SvgCanvas(500, 500, svgElements)
+      SvgCanvas(2000, 2000, svgElements)
     }
   }
 }
