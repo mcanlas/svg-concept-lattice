@@ -6,6 +6,8 @@ case class SvgCircle(x: Int, y: Int, radius: Int) extends SvgElement
 
 case class SvgLine(x1: Int, y1: Int, x2: Int, y2: Int) extends SvgElement
 
+case class SvgText(x: Int, y: Int, s: String) extends SvgElement
+
 object SvgElement {
   val render: SvgElement => String = {
     case SvgCircle(x, y, radius) =>
@@ -24,6 +26,12 @@ object SvgElement {
         "y1" -> y1.toString,
         "x2" -> x2.toString,
         "y2" -> y2.toString))
+
+    case SvgText(x, y, s) =>
+      startTag("text", List(
+        "x" -> x.toString,
+        "y" -> y.toString,
+      )) + s + "</text>"
   }
 
   def emptyTag(name: String, attributes: List[(String, String)]): String =
@@ -32,4 +40,10 @@ object SvgElement {
       .::(name)
       .appended("/>")
       .mkString(" ")
+
+  def startTag(name: String, attributes: List[(String, String)]): String =
+    "<" + attributes
+      .map { case (name, value) => s"""$name="$value"""" }
+      .::(name)
+      .mkString(" ") + ">"
 }

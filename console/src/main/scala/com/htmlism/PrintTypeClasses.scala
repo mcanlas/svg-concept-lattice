@@ -39,23 +39,37 @@ object PrintTypeClasses extends App {
   val typeClassLattice =
     leftChain ++ rightChain ++ effectChain ++ leftToError ++ errorToEffect
 
-  def render(xFlex: Int, yFlex: Int, xPad: Int, yPad: Int)(x: ConceptLatticeElement): (Chain[SvgElement], Chain[SvgElement]) =
+  private def render(xFlex: Int, yFlex: Int, xPad: Int, yPad: Int)(x: ConceptLatticeElement) =
     x match {
       case ConceptLatticeEdge(Coordinate(x1, y1), Coordinate(x2, y2)) =>
-        Chain.one(SvgLine(xPad + x1 * xFlex, yPad + y1 * yFlex, xPad + x2 * xFlex, yPad + y2 * yFlex)) -> Chain.empty[SvgElement]
+        (
+          Chain.one(SvgLine(xPad + x1 * xFlex, yPad + y1 * yFlex, xPad + x2 * xFlex, yPad + y2 * yFlex)),
+          Chain.empty[SvgElement],
+          Chain.empty[SvgElement]
+        )
 
       case ConceptLatticeNode(Coordinate(x, y), attr, objs) =>
-        Chain.empty[SvgElement] -> Chain.one(SvgCircle(xPad + x * xFlex, yPad + y * yFlex, 30))
+        val attrChain =
+          attr.fold(Chain.empty[SvgElement]){ s => Chain.one(SvgText(xPad + x * xFlex, yPad + y * yFlex, s)) }
+
+        val objChain =
+          objs.headOption.fold(Chain.empty[SvgElement]){ s => Chain.one(SvgText(xPad + x * xFlex, 20 + yPad + y * yFlex, s)) }
+
+        (
+          Chain.empty[SvgElement],
+          Chain.one(SvgCircle(xPad + x * xFlex, yPad + y * yFlex, 30)),
+          attrChain ++ objChain,
+        )
     }
 
-  val (layerOne, layerTwo) =
+  val (layerOne, layerTwo, layerThree) =
     typeClassLattice
       .map(render(150, 100, 50, 50))
       .reduce
 
   println {
     SvgCanvas.render {
-      SvgCanvas(1000, 1000, layerOne ++ layerTwo)
+      SvgCanvas(1000, 1000, layerOne ++ layerTwo ++ layerThree)
     }
   }
 }
