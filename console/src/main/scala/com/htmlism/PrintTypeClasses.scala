@@ -19,36 +19,43 @@ object PrintTypeClasses extends App {
     EasyNode.chain(1, 2,
       EasyNode.attr("ApplicativeError", "Validated"),
       EasyNode.attr("MonadError", "Decoder"),
+    )
+
+  val effectChain =
+    EasyNode.chain(2, 4,
       EasyNode.attr("Bracket"),
       EasyNode.attr("Sync", "IO"),
     )
 
-  val applicativeLine = ConceptLatticeEdge(Coordinate(0, 1), Coordinate(1, 2))
-  val monadLine = ConceptLatticeEdge(Coordinate(0, 2), Coordinate(1, 3))
+  val leftToError =
+    NonEmptyChain(
+      ConceptLatticeEdge(Coordinate(0, 1), Coordinate(1, 2)),
+      ConceptLatticeEdge(Coordinate(0, 2), Coordinate(1, 3)))
 
-  println(leftChain)
+  val errorToEffect =
+    NonEmptyChain(
+      ConceptLatticeEdge(Coordinate(1, 3), Coordinate(2, 4)))
 
   val typeClassLattice =
-    leftChain
-      .concat(rightChain)
-      .prepend(applicativeLine)
-      .prepend(monadLine)
+    leftChain ++ rightChain ++ effectChain ++ leftToError ++ errorToEffect
 
-  def render(factor: Int, xPad: Int, yPad: Int)(x: ConceptLatticeElement): NonEmptyChain[SvgElement] =
+  def render(xFlex: Int, yFlex: Int, xPad: Int, yPad: Int)(x: ConceptLatticeElement): (Chain[SvgElement], Chain[SvgElement]) =
     x match {
       case ConceptLatticeEdge(Coordinate(x1, y1), Coordinate(x2, y2)) =>
-        NonEmptyChain.one(SvgLine(xPad + x1 * factor, yPad + y1 * factor, xPad + x2 * factor, yPad + y2 * factor))
+        Chain.one(SvgLine(xPad + x1 * xFlex, yPad + y1 * yFlex, xPad + x2 * xFlex, yPad + y2 * yFlex)) -> Chain.empty[SvgElement]
 
       case ConceptLatticeNode(Coordinate(x, y), attr, objs) =>
-        NonEmptyChain.one(SvgCircle(xPad + x * factor, yPad + y * factor, 50))
+        Chain.empty[SvgElement] -> Chain.one(SvgCircle(xPad + x * xFlex, yPad + y * yFlex, 30))
     }
 
-  val svgElements =
-    typeClassLattice >>= render(200, 100, 100)
+  val (layerOne, layerTwo) =
+    typeClassLattice
+      .map(render(150, 100, 50, 50))
+      .reduce
 
   println {
     SvgCanvas.render {
-      SvgCanvas(1000, 1000, svgElements)
+      SvgCanvas(1000, 1000, layerOne ++ layerTwo)
     }
   }
 }
