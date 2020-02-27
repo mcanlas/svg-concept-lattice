@@ -1,7 +1,7 @@
 package com.htmlism.conceptlattice
 package dsl
 
-import cats.data.NonEmptyList
+import cats.data._
 
 case class EasyNode(attribute: Option[String], objects: List[String])
 
@@ -14,7 +14,7 @@ object EasyNode {
   def obj(objects: String*): EasyNode =
     EasyNode(None, objects.toList)
 
-  def chain(x: Int, y: Int, n: EasyNode, ns: EasyNode*): NonEmptyList[ConceptLatticeElement] = {
+  def chain(x: Int, y: Int, n: EasyNode, ns: EasyNode*): NonEmptyChain[ConceptLatticeElement] = {
     val nodes =
       NonEmptyList
         .of(n, ns: _*)
@@ -28,7 +28,8 @@ object EasyNode {
         .map(dy => ConceptLatticeEdge(Coordinate(x, dy), Coordinate(x, dy + 1)))
         .toList
 
-    nodes
-      .concat(edges)
+    NonEmptyChain
+      .fromNonEmptyList(nodes)
+      .appendChain(Chain.fromSeq(edges))
   }
 }

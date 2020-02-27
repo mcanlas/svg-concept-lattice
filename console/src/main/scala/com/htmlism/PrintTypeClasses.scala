@@ -1,6 +1,9 @@
 package com.htmlism
 
-import com.htmlism.conceptlattice.{ConceptLatticeEdge, Coordinate}
+import cats.data._
+import cats.implicits._
+
+import com.htmlism.conceptlattice.{ConceptLatticeEdge, ConceptLatticeElement, ConceptLatticeNode, Coordinate}
 import com.htmlism.conceptlattice.dsl._
 import com.htmlism.svg._
 
@@ -25,7 +28,20 @@ object PrintTypeClasses extends App {
 
   val typeClassLattice =
     leftChain
-      .concatNel(rightChain)
+      .concat(rightChain)
       .prepend(applicativeLine)
       .prepend(monadLine)
+
+  def render(factor: Int)(x: ConceptLatticeElement): NonEmptyChain[SvgElement] =
+    x match {
+      case ConceptLatticeEdge(Coordinate(x1, y1), Coordinate(x2, y2)) =>
+        NonEmptyChain.one(SvgLine(x1 * 20, y1 * 20, x2 * 20, y2 * 20))
+
+      case ConceptLatticeNode(Coordinate(x, y), attr, objs) =>
+        NonEmptyChain.one(SvgCircle(x * 20, y * 20, 5))
+    }
+
+  println {
+    typeClassLattice >>= render(20)
+  }
 }
